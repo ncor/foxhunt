@@ -1,6 +1,6 @@
 ### foxhunt
 
-<div style="width:100%;height:0;padding-bottom:113%;position:relative;"><iframe src="https://giphy.com/embed/spoNoX8oxA8TFpLU5M" width="100%" height="100%" style="position:absolute" frameBorder="0" class="giphy-embed" allowFullScreen></iframe></div><p>
+<div style="width:100%;height:0;padding-bottom:113%;position:relative;"><iframe src="https://giphy.com/embed/spoNoX8oxA8TFpLU5M" width="100%" height="100%" style="position:absolute" frameBorder="0" class="giphy-embed" allowFullScreen></iframe></div>
 
 This is a web-based game where you need to find with the help of a radio direction finder five targets hiding in the hidden areas.
 
