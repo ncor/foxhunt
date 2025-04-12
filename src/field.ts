@@ -44,10 +44,14 @@ const countSurroundingTargetsAlongAxes = (
     targetPositions.reduce(
         (count, targetPosition) =>
             count +
+            // are on the same horizontal line:
             (targetPosition[0] === position[0] ||
+            // are on the same vertical line:
             targetPosition[1] === position[1] ||
+            // are on the same top-bottom diagonal:
             targetPosition[0] - targetPosition[1] ===
                 position[0] - position[1] ||
+            // are on the same bottom-top diagonal:
             targetPosition[0] + targetPosition[1] === position[0] + position[1]
                 ? 1
                 : 0),
