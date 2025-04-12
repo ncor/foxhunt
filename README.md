@@ -1,6 +1,6 @@
 ### foxhunt
 
-![](https://github.com/ncor/foxhunt/raw/refs/heads/main/assets/demo.gif)
+![](https://raw.githubusercontent.com/ncor/foxhunt/refs/heads/main/assets/demo.gif)
 
 This is a web-based game where you need to find with the help of a radio direction finder five targets hiding in the hidden areas.
 
