@@ -1,17 +1,18 @@
 import clsx from "clsx";
-import { RadioTowerIcon, RefreshCw } from "lucide-react";
-import { useMemo, useState } from "react";
+import { RadioTowerIcon, RefreshCw, TrophyIcon } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { type FieldValue, generateInitialFieldValues } from "./field";
 import { type Vector, vector2, vector4 } from "./shared/lib/vector";
 import { Button } from "./shared/ui/button";
 import { cn } from "./shared/ui/cn";
-import { Icon } from "./shared/ui/icon";
 
 const FIELD_DIMENSIONS = vector2(9, 9);
 const NUMBER_OF_TARGETS = 5;
 
 const COLD_COLOR_HSLA = vector4(180, 99, 61, 0.5);
 const HOT_COLOR_HSLA = vector4(0, 99, 61, 1);
+
+const DEFAULT_ICON_SIZE = 18;
 
 const easeCircular = (x: number) => Math.sqrt(1 - (x - 1) ** 2);
 
@@ -117,6 +118,7 @@ const ScoreBar = (props: ScoreBarProps) => (
 
 type VictoryOverlayProps = {
     isVisible: boolean;
+    isNewRecord: boolean;
     onTryAgain: () => void;
 };
 
@@ -129,15 +131,45 @@ const VictoryOverlay = (props: VictoryOverlayProps) => (
             },
         )}
     >
-        <p className="font-medium text-xl">You won</p>
+        <div className="flex flex-col items-center">
+            <p className="font-medium text-xl">You won</p>
+            {props.isNewRecord && (
+                <p className="font-medium text-yellow-500">New record!</p>
+            )}
+        </div>
         <Button
             onClick={props.onTryAgain}
             size="lg"
-            leftIcon={() => <Icon component={RefreshCw} />}
+            leftIcon={() => <RefreshCw size={DEFAULT_ICON_SIZE} />}
         >
             Try again
         </Button>
     </div>
+);
+
+const retrieveRecordMoves = (): number | null =>
+    Number.parseInt(localStorage.getItem("record") || "") || null;
+
+const saveRecordMoves = (moves: number) =>
+    localStorage.setItem("record", moves.toString());
+
+type RecordMovesIndicatorProps = {
+    moves: number;
+};
+
+const RecordMovesIndicator = (props: RecordMovesIndicatorProps) => (
+    <p className="font-medium text-yellow-600 mr-3 flex items-center gap-2">
+        <TrophyIcon size={DEFAULT_ICON_SIZE} />
+        {props.moves} moves
+    </p>
+);
+
+type MovesIndicatorProps = {
+    moves: number;
+};
+
+const MovesIndicator = (props: MovesIndicatorProps) => (
+    <p className="font-medium text-neutral-300 mr-3">{props.moves} moves</p>
 );
 
 export const App = () => {
@@ -147,7 +179,11 @@ export const App = () => {
     const [checkedIndices, setCheckedIndices] = useState<Set<number>>(
         new Set(),
     );
+    const moves = useMemo(() => checkedIndices.size, [checkedIndices]);
 
+    const [recordMoves, setRecordMoves] = useState(retrieveRecordMoves());
+
+    // TODO: can be optimized
     const score = useMemo(
         () =>
             [...checkedIndices].reduce(
@@ -159,6 +195,11 @@ export const App = () => {
     );
 
     const isVictory = useMemo(() => score >= NUMBER_OF_TARGETS, [score]);
+
+    const isNewRecord = useMemo(
+        () => isVictory && (recordMoves == null || moves <= recordMoves),
+        [isVictory, moves, recordMoves],
+    );
 
     const handleIndexedClick = (index: number) =>
         setCheckedIndices(
@@ -172,6 +213,13 @@ export const App = () => {
         setCheckedIndices(new Set());
     };
 
+    useEffect(() => {
+        if (isNewRecord) {
+            setRecordMoves(moves);
+            saveRecordMoves(moves);
+        }
+    }, [isNewRecord, moves]);
+
     return (
         <main className="w-screen h-screen bg-neutral-950 flex justify-center">
             <div className="w-full max-w-3xl flex flex-col justify-center px-1%">
@@ -179,6 +227,7 @@ export const App = () => {
                     <VictoryOverlay
                         onTryAgain={handleRestart}
                         isVisible={isVictory}
+                        isNewRecord={isNewRecord}
                     />
                     <Field
                         onIndexedClick={handleIndexedClick}
@@ -190,12 +239,16 @@ export const App = () => {
                     />
                 </div>
                 <div className="flex justify-center items-center gap-2 mt-10">
+                    {recordMoves !== null && (
+                        <RecordMovesIndicator moves={recordMoves} />
+                    )}
+                    <MovesIndicator moves={moves} />
                     <ScoreBar score={score} />
                     <Button
                         onClick={handleRestart}
                         size="lg"
                         variant="ghost"
-                        leftIcon={() => <Icon component={RefreshCw} />}
+                        leftIcon={() => <RefreshCw size={DEFAULT_ICON_SIZE} />}
                     >
                         Restart
                     </Button>
